@@ -101,6 +101,7 @@ export default function DashboardClient({ user, profile, appointments: initialAp
     try {
       const docRef = await addDoc(collection(db, 'appointments'), {
         user_id:          user.id,
+        user_email:       user.email || '',
         service_id:       bookingData.serviceId,
         groomer_id:       bookingData.groomerId || null,
         appointment_date: bookingData.date,
@@ -114,10 +115,31 @@ export default function DashboardClient({ user, profile, appointments: initialAp
         created_at:       new Date().toISOString(),
       })
 
+      // Fire-and-forget email notification to admin
+      fetch('/api/send-appointment-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userEmail:       user.email || '',
+          petName:         bookingData.petName,
+          petBreed:        bookingData.petBreed || '',
+          petAge:          bookingData.petAge || '',
+          serviceName:     selectedService?.name || 'Unknown Service',
+          servicePrice:    selectedService?.price ?? 0,
+          serviceDuration: selectedService?.duration ?? 0,
+          groomerName:     selectedGroomer?.name || 'Any available groomer',
+          date:            bookingData.date,
+          time:            bookingData.time,
+          notes:           bookingData.notes || '',
+          appointmentId:   docRef.id,
+        }),
+      }).catch(() => {})
+
       // Add new appointment to local state instantly (no page reload needed)
       const newAppointment: Appointment = {
         id: docRef.id,
         user_id: user.id,
+        user_email: user.email || '',
         appointment_date: bookingData.date,
         appointment_time: bookingData.time,
         status: 'pending',

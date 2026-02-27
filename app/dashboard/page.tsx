@@ -28,6 +28,7 @@ export const GROOMERS = [
 type RawAppointment = {
   id: string
   user_id: string
+  user_email: string
   service_id: string
   groomer_id?: string | null
   appointment_date: string
