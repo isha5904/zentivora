@@ -120,12 +120,20 @@ export default function AdminClient() {
 
   if (!authorized) return null
 
+  const now           = new Date()
+  const thisMonth     = (a: AdminAppointment) => new Date(a.appointment_date).getMonth() === now.getMonth() && new Date(a.appointment_date).getFullYear() === now.getFullYear()
+  const last7days     = (a: AdminAppointment) => (now.getTime() - new Date(a.created_at || a.appointment_date).getTime()) < 7 * 86400000
+
   const stats = {
-    total:     appointments.length,
-    pending:   appointments.filter(a => a.status === 'pending').length,
-    confirmed: appointments.filter(a => a.status === 'confirmed').length,
-    completed: appointments.filter(a => a.status === 'completed').length,
-    cancelled: appointments.filter(a => a.status === 'cancelled').length,
+    total:          appointments.length,
+    pending:        appointments.filter(a => a.status === 'pending').length,
+    confirmed:      appointments.filter(a => a.status === 'confirmed').length,
+    completed:      appointments.filter(a => a.status === 'completed').length,
+    cancelled:      appointments.filter(a => a.status === 'cancelled').length,
+    totalRevenue:   appointments.filter(a => a.status === 'completed').reduce((s, a) => s + (a.total_price || 0), 0),
+    monthRevenue:   appointments.filter(a => a.status === 'completed' && thisMonth(a)).reduce((s, a) => s + (a.total_price || 0), 0),
+    pendingRevenue: appointments.filter(a => ['pending','confirmed'].includes(a.status)).reduce((s, a) => s + (a.total_price || 0), 0),
+    newThisWeek:    appointments.filter(a => last7days(a)).length,
   }
 
   const filtered = filter === 'all' ? appointments : appointments.filter(a => a.status === filter)
@@ -174,11 +182,27 @@ export default function AdminClient() {
 
         {/* Title */}
         <div className="mb-8">
-          <h1 className="text-3xl font-extrabold text-gray-900">Appointment Management</h1>
-          <p className="text-gray-500 mt-1 text-sm">Review and manage all customer bookings</p>
+          <h1 className="text-3xl font-extrabold text-gray-900">Admin Dashboard</h1>
+          <p className="text-gray-500 mt-1 text-sm">Overview of all bookings, revenue, and activity</p>
         </div>
 
-        {/* Stats */}
+        {/* Revenue Stats */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          {[
+            { label: 'Total Revenue',    value: `£${stats.totalRevenue}`,   emoji: '💰', bg: 'bg-green-50',  text: 'text-green-700'  },
+            { label: 'This Month',       value: `£${stats.monthRevenue}`,   emoji: '📅', bg: 'bg-blue-50',   text: 'text-blue-700'   },
+            { label: 'Pending Revenue',  value: `£${stats.pendingRevenue}`, emoji: '⏳', bg: 'bg-orange-50', text: 'text-orange-700' },
+            { label: 'New This Week',    value: stats.newThisWeek,          emoji: '🆕', bg: 'bg-purple-50', text: 'text-purple-700' },
+          ].map(s => (
+            <div key={s.label} className={`${s.bg} ${s.text} rounded-2xl p-5`}>
+              <div className="text-2xl mb-2">{s.emoji}</div>
+              <p className="text-2xl font-extrabold">{s.value}</p>
+              <p className="text-xs font-semibold mt-0.5 opacity-70">{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Booking Status Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 mb-8">
           {[
             { label: 'Total',     value: stats.total,     bg: 'bg-gray-50',    text: 'text-gray-700'   },
