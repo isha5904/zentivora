@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { adminDb } from '@/lib/firebase/admin'
+import { getAdminDb } from '@/lib/firebase/admin'
 
 export async function POST(request: Request) {
   try {
@@ -10,7 +10,8 @@ export async function POST(request: Request) {
       notes, totalPrice,
     } = body
 
-    const docRef = await adminDb.collection('appointments').add({
+    const db = getAdminDb()
+    const docRef = await db.collection('appointments').add({
       user_id:          userId,
       user_email:       userEmail || '',
       service_id:       serviceId,
