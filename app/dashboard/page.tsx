@@ -85,8 +85,12 @@ export default function DashboardPage() {
       }
 
       if (apptResult.status === 'fulfilled' && apptResult.value.success) {
+        const userEmail = fbUser.email ?? ''
+        const userUid   = fbUser.uid
         const raw = (apptResult.value.appointments as RawAppointment[])
-          .filter((a: RawAppointment) => a.user_id === fbUser.uid)
+          .filter((a: RawAppointment) =>
+            a.user_id === userUid || (a as unknown as { user_email?: string }).user_email === userEmail
+          )
           .sort((a: RawAppointment, b: RawAppointment) =>
             new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime()
           )
