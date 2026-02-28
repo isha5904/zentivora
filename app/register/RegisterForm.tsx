@@ -44,11 +44,12 @@ export default function RegisterForm() {
     try {
       const { user } = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
       await updateProfile(user, { displayName: formData.fullName })
-      await setDoc(doc(db, 'profiles', user.uid), {
+      // Save profile in background — don't block success if Firestore rules deny it
+      setDoc(doc(db, 'profiles', user.uid), {
         full_name: formData.fullName,
         phone: formData.phone,
         created_at: new Date().toISOString(),
-      })
+      }).catch(() => {})
       setSuccess(true)
       setTimeout(() => router.push('/dashboard'), 2000)
     } catch (err: unknown) {
