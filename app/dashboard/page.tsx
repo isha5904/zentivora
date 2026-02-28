@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth'
-import { doc, getDoc, collection, query, where, orderBy, getDocs } from 'firebase/firestore'
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase/config'
 import DashboardClient from './DashboardClient'
 
@@ -74,19 +74,22 @@ export default function DashboardPage() {
       }
       setFirebaseUser(fbUser)
 
-      // Fetch profile from Firestore
-      try {
-        const snap = await getDoc(doc(db, 'profiles', fbUser.uid))
-        if (snap.exists()) setProfile(snap.data() as Profile)
-      } catch { /* profile may not exist yet */ }
+      // Fetch profile and appointments in parallel
+      const [profileResult, apptResult] = await Promise.allSettled([
+        getDoc(doc(db, 'profiles', fbUser.uid)),
+        getDocs(query(collection(db, 'appointments'), where('user_id', '==', fbUser.uid))),
+      ])
 
-      // Fetch appointments from Firestore
-      try {
-        const q    = query(collection(db, 'appointments'), where('user_id', '==', fbUser.uid), orderBy('appointment_date', 'desc'))
-        const snap = await getDocs(q)
-        const raw  = snap.docs.map(d => ({ ...d.data(), id: d.id } as RawAppointment))
+      if (profileResult.status === 'fulfilled' && profileResult.value.exists()) {
+        setProfile(profileResult.value.data() as Profile)
+      }
+
+      if (apptResult.status === 'fulfilled') {
+        const raw = apptResult.value.docs
+          .map(d => ({ ...d.data(), id: d.id } as RawAppointment))
+          .sort((a, b) => new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime())
         setAppointments(enrichAppointments(raw))
-      } catch { setAppointments([]) }
+      }
 
       setLoading(false)
     })
