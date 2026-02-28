@@ -7,8 +7,7 @@ import {
   CheckCircle, XCircle, RefreshCw, Shield,
 } from 'lucide-react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { doc, updateDoc } from 'firebase/firestore'
-import { auth, db } from '@/lib/firebase/config'
+import { auth } from '@/lib/firebase/config'
 import { SERVICES, GROOMERS } from '../dashboard/page'
 import { format } from 'date-fns'
 
@@ -80,10 +79,17 @@ export default function AdminClient() {
   const handleStatusUpdate = async (id: string, newStatus: string) => {
     setUpdatingId(id)
     try {
-      await updateDoc(doc(db, 'appointments', id), { status: newStatus })
-      setAppointments(prev =>
-        prev.map(a => a.id === id ? { ...a, status: newStatus } : a)
-      )
+      const res = await fetch('/api/update-appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: newStatus }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        setAppointments(prev =>
+          prev.map(a => a.id === id ? { ...a, status: newStatus } : a)
+        )
+      }
     } catch (err) {
       console.error('Status update failed:', err)
     }
