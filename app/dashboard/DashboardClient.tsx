@@ -116,7 +116,7 @@ export default function DashboardClient({ user, profile, appointments: initialAp
         created_at:       new Date().toISOString(),
         }),
         new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Firestore write timed out. Please update your Firestore security rules to allow authenticated writes.')), 10000)
+          setTimeout(() => reject(new Error('Booking timed out. Please try again.')), 30000)
         ),
       ])
 
