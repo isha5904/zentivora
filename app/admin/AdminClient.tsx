@@ -7,7 +7,7 @@ import {
   CheckCircle, XCircle, RefreshCw, Shield,
 } from 'lucide-react'
 import { onAuthStateChanged, signOut } from 'firebase/auth'
-import { collection, getDocs, orderBy, query, doc, updateDoc } from 'firebase/firestore'
+import { doc, updateDoc } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase/config'
 import { SERVICES, GROOMERS } from '../dashboard/page'
 import { format } from 'date-fns'
@@ -50,10 +50,11 @@ export default function AdminClient() {
   const router = useRouter()
 
   const fetchAllAppointments = async () => {
-    const q    = query(collection(db, 'appointments'), orderBy('created_at', 'desc'))
-    const snap = await getDocs(q)
-    const data = snap.docs.map(d => ({ ...d.data(), id: d.id } as AdminAppointment))
-    setAppointments(data)
+    const res  = await fetch('/api/all-appointments')
+    const json = await res.json()
+    if (json.success) {
+      setAppointments(json.appointments as AdminAppointment[])
+    }
   }
 
   useEffect(() => {

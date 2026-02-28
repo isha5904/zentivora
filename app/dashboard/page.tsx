@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { onAuthStateChanged, User as FirebaseUser } from 'firebase/auth'
-import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore'
+import { doc, getDoc } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase/config'
 import DashboardClient from './DashboardClient'
 
@@ -77,17 +77,15 @@ export default function DashboardPage() {
       // Fetch profile and appointments in parallel
       const [profileResult, apptResult] = await Promise.allSettled([
         getDoc(doc(db, 'profiles', fbUser.uid)),
-        getDocs(query(collection(db, 'appointments'), where('user_id', '==', fbUser.uid))),
+        fetch(`/api/my-appointments?uid=${fbUser.uid}`).then(r => r.json()),
       ])
 
       if (profileResult.status === 'fulfilled' && profileResult.value.exists()) {
         setProfile(profileResult.value.data() as Profile)
       }
 
-      if (apptResult.status === 'fulfilled') {
-        const raw = apptResult.value.docs
-          .map(d => ({ ...d.data(), id: d.id } as RawAppointment))
-          .sort((a, b) => new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime())
+      if (apptResult.status === 'fulfilled' && apptResult.value.success) {
+        const raw = (apptResult.value.appointments as RawAppointment[])
         setAppointments(enrichAppointments(raw))
       }
 
