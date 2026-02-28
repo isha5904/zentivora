@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Menu, X, Scissors, User, LogOut } from 'lucide-react'
+import { Menu, X, Scissors, User, LogOut, Shield } from 'lucide-react'
 import { onAuthStateChanged, signOut, User as FirebaseUser } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
 import { useRouter } from 'next/navigation'
@@ -40,6 +40,7 @@ export default function Navbar() {
   ]
 
   const displayName = user?.displayName?.split(' ')[0] || 'Dashboard'
+  const isAdmin = user?.email === 'ishapatharia2004@gmail.com'
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? 'bg-white shadow-lg' : 'bg-white/95 backdrop-blur-sm'}`}>
@@ -72,6 +73,15 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3">
             {user ? (
               <div className="flex items-center gap-3">
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-full hover:bg-orange-600 transition-colors shadow-sm"
+                  >
+                    <Shield className="w-3.5 h-3.5" />
+                    Admin Panel
+                  </Link>
+                )}
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-orange-500 transition-colors"
@@ -132,6 +142,12 @@ export default function Navbar() {
             <div className="pt-3 border-t border-gray-100 flex flex-col gap-2">
               {user ? (
                 <>
+                  {isAdmin && (
+                    <Link href="/admin" className="flex items-center gap-2 text-sm font-bold text-orange-600 py-2">
+                      <Shield className="w-4 h-4" />
+                      Admin Panel
+                    </Link>
+                  )}
                   <Link href="/dashboard" className="flex items-center gap-2 text-sm font-medium text-gray-700 py-2">
                     <User className="w-4 h-4" />
                     Dashboard
