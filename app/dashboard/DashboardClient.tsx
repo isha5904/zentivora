@@ -99,7 +99,8 @@ export default function DashboardClient({ user, profile, appointments: initialAp
     const selectedGroomer = groomers.find(g => g.id === bookingData.groomerId)
 
     try {
-      const docRef = await addDoc(collection(db, 'appointments'), {
+      const docRef = await Promise.race([
+        addDoc(collection(db, 'appointments'), {
         user_id:          user.id,
         user_email:       user.email || '',
         service_id:       bookingData.serviceId,
@@ -113,7 +114,11 @@ export default function DashboardClient({ user, profile, appointments: initialAp
         total_price:      selectedService?.price ?? 0,
         status:           'pending',
         created_at:       new Date().toISOString(),
-      })
+        }),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error('Firestore write timed out. Please update your Firestore security rules to allow authenticated writes.')), 10000)
+        ),
+      ])
 
       // Fire-and-forget email notification to admin
       fetch('/api/send-appointment-email', {
