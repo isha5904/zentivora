@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
   Scissors, LogOut, Calendar, Clock, User, Plus, X, CheckCircle,
-  AlertCircle, Home, Star, ChevronRight, Trash2
+  AlertCircle, Home, Star, ChevronRight, Trash2, Shield
 } from 'lucide-react'
 import { signOut } from 'firebase/auth'
 import { auth } from '@/lib/firebase/config'
@@ -254,7 +254,16 @@ export default function DashboardClient({ user, profile, appointments: initialAp
         </nav>
 
         {/* Logout */}
-        <div className="p-4">
+        <div className="p-4 space-y-1">
+          {user.email === 'ishapatharia2004@gmail.com' && (
+            <Link
+              href="/admin"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold text-orange-600 bg-orange-50 hover:bg-orange-100 transition-all duration-200"
+            >
+              <Shield className="w-4 h-4" />
+              Admin Panel
+            </Link>
+          )}
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-gray-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200"
