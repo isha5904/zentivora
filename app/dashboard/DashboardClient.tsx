@@ -8,7 +8,7 @@ import {
   AlertCircle, Home, Star, ChevronRight, Trash2
 } from 'lucide-react'
 import { signOut } from 'firebase/auth'
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore'
+import { doc, updateDoc } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase/config'
 import { SERVICES, GROOMERS, type Appointment } from './page'
 import { format } from 'date-fns'
@@ -99,26 +99,26 @@ export default function DashboardClient({ user, profile, appointments: initialAp
     const selectedGroomer = groomers.find(g => g.id === bookingData.groomerId)
 
     try {
-      const docRef = await Promise.race([
-        addDoc(collection(db, 'appointments'), {
-        user_id:          user.id,
-        user_email:       user.email || '',
-        service_id:       bookingData.serviceId,
-        groomer_id:       bookingData.groomerId || null,
-        appointment_date: bookingData.date,
-        appointment_time: bookingData.time,
-        pet_name:         bookingData.petName,
-        pet_breed:        bookingData.petBreed || null,
-        pet_age:          bookingData.petAge ? parseInt(bookingData.petAge) : null,
-        notes:            bookingData.notes || null,
-        total_price:      selectedService?.price ?? 0,
-        status:           'pending',
-        created_at:       new Date().toISOString(),
+      const res = await fetch('/api/book-appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId:     user.id,
+          userEmail:  user.email || '',
+          serviceId:  bookingData.serviceId,
+          groomerId:  bookingData.groomerId || null,
+          date:       bookingData.date,
+          time:       bookingData.time,
+          petName:    bookingData.petName,
+          petBreed:   bookingData.petBreed || '',
+          petAge:     bookingData.petAge || '',
+          notes:      bookingData.notes || '',
+          totalPrice: selectedService?.price ?? 0,
         }),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error('Booking timed out. Please try again.')), 30000)
-        ),
-      ])
+      })
+      const result = await res.json()
+      if (!result.success) throw new Error(result.error || 'Booking failed')
+      const docRef = { id: result.id as string }
 
       // Fire-and-forget email notification to admin
       fetch('/api/send-appointment-email', {
