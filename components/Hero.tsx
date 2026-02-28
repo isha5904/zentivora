@@ -2,11 +2,19 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import { Star, Shield, Clock, ChevronRight } from 'lucide-react'
+import { Star, Shield, Clock, ChevronRight, MapPin } from 'lucide-react'
 
 export default function Hero() {
   const [imgError, setImgError] = useState(false)
+  const [city, setCity]         = useState('')
+  const router                  = useRouter()
+
+  const handleCitySearch = (e: React.FormEvent) => {
+    e.preventDefault()
+    router.push('/register')
+  }
 
   return (
     <section className="relative min-h-screen bg-gradient-to-br from-orange-50 via-white to-amber-50 flex items-center overflow-hidden pt-16">
@@ -57,6 +65,26 @@ export default function Hero() {
                 View Services
               </a>
             </div>
+
+            {/* Location Selector */}
+            <form onSubmit={handleCitySearch} className="flex gap-2 max-w-md">
+              <div className="relative flex-1">
+                <MapPin className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-orange-400" />
+                <input
+                  type="text"
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  placeholder="Enter your city..."
+                  className="w-full pl-10 pr-4 py-3 border-2 border-orange-200 rounded-xl text-sm focus:outline-none focus:border-orange-500 bg-white shadow-sm"
+                />
+              </div>
+              <button
+                type="submit"
+                className="px-5 py-3 bg-orange-500 text-white text-sm font-bold rounded-xl hover:bg-orange-600 transition-colors shadow-sm whitespace-nowrap"
+              >
+                Find Groomers
+              </button>
+            </form>
 
             {/* Trust Badges */}
             <div className="flex flex-wrap gap-6 pt-4">

@@ -37,6 +37,7 @@ export default function Navbar() {
     { href: '#groomers', label: 'Groomers' },
     { href: '#reviews', label: 'Reviews' },
     { href: '#faq', label: 'FAQ' },
+    { href: '/join', label: 'Become a Groomer' },
   ]
 
   const displayName = user?.displayName?.split(' ')[0] || 'Dashboard'

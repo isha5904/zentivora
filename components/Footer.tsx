@@ -74,12 +74,15 @@ export default function Footer() {
             <h3 className="font-bold text-white mb-4">Quick Links</h3>
             <ul className="space-y-2.5">
               {[
-                { label: 'How It Works', href: '#how-it-works' },
-                { label: 'Our Groomers', href: '#groomers' },
-                { label: 'Reviews', href: '#reviews' },
-                { label: 'FAQ', href: '#faq' },
-                { label: 'Login', href: '/login' },
-                { label: 'Create Account', href: '/register' },
+                { label: 'How It Works',     href: '#how-it-works' },
+                { label: 'Our Groomers',     href: '#groomers'     },
+                { label: 'Reviews',          href: '#reviews'      },
+                { label: 'FAQ',              href: '#faq'          },
+                { label: 'About Us',         href: '/about'        },
+                { label: 'Contact Us',       href: '/contact'      },
+                { label: 'Become a Groomer', href: '/join'         },
+                { label: 'Login',            href: '/login'        },
+                { label: 'Create Account',   href: '/register'     },
               ].map((link) => (
                 <li key={link.label}>
                   <Link href={link.href} className="text-gray-400 hover:text-orange-400 text-sm transition-colors duration-200">

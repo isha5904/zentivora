@@ -36,6 +36,14 @@ const faqs = [
     question: 'How do I track my appointment status?',
     answer: 'Log into your Zentivora dashboard to see real-time status updates on your appointment: Pending → Confirmed → In Progress → Completed. You\'ll also receive email notifications at each stage.',
   },
+  {
+    question: 'What is your cancellation policy?',
+    answer: 'You can cancel or reschedule free of charge up to 24 hours before your appointment via your dashboard. Cancellations made less than 24 hours before the scheduled time may incur a 50% cancellation fee. No-shows are charged the full service price. We understand emergencies happen — contact us and we\'ll do our best to accommodate you.',
+  },
+  {
+    question: 'What should I expect on my first visit?',
+    answer: 'On your first visit, arrive 5–10 minutes early to complete a quick check-in form about your dog\'s health and temperament. Bring vaccination records (rabies certificate required), your dog\'s usual treats, and any favourite toys for comfort. Our groomer will walk you through the planned service before starting. Drop-off typically takes 5 minutes and you\'ll receive a notification when your pup is ready for pick-up.',
+  },
 ]
 
 export default function FAQ() {

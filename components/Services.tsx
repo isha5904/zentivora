@@ -1,7 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
-import { Clock, DollarSign, ArrowRight } from 'lucide-react'
+import { Clock, DollarSign, ArrowRight, Info } from 'lucide-react'
 
 const services = [
   {
@@ -78,6 +79,31 @@ const services = [
   },
 ]
 
+function PriceTooltip() {
+  const [show, setShow] = useState(false)
+  return (
+    <div className="relative inline-flex items-center">
+      <button
+        type="button"
+        onMouseEnter={() => setShow(true)}
+        onMouseLeave={() => setShow(false)}
+        onFocus={() => setShow(true)}
+        onBlur={() => setShow(false)}
+        className="ml-1 text-gray-300 hover:text-orange-400 transition-colors"
+        aria-label="Price info"
+      >
+        <Info className="w-3.5 h-3.5" />
+      </button>
+      {show && (
+        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-52 bg-gray-900 text-white text-xs rounded-xl px-3 py-2 shadow-xl z-20 text-center leading-relaxed">
+          Final price may vary after a quick breed &amp; size assessment.
+          <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-gray-900" />
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function Services() {
   return (
     <section id="services" className="py-20 bg-white">
@@ -125,6 +151,7 @@ export default function Services() {
                   <div className="flex items-center gap-1 text-orange-500 font-bold text-lg">
                     <DollarSign className="w-4 h-4" />
                     <span>{service.price.replace('$', '')}</span>
+                    <PriceTooltip />
                   </div>
                   <div className="flex items-center gap-1 text-gray-400 text-sm">
                     <Clock className="w-3.5 h-3.5" />
