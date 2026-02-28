@@ -8,8 +8,7 @@ import {
   AlertCircle, Home, Star, ChevronRight, Trash2
 } from 'lucide-react'
 import { signOut } from 'firebase/auth'
-import { doc, updateDoc } from 'firebase/firestore'
-import { auth, db } from '@/lib/firebase/config'
+import { auth } from '@/lib/firebase/config'
 import { SERVICES, GROOMERS, type Appointment } from './page'
 import { format } from 'date-fns'
 
@@ -175,8 +174,15 @@ export default function DashboardClient({ user, profile, appointments: initialAp
   const handleCancel = async (id: string) => {
     setCancelLoading(id)
     try {
-      await updateDoc(doc(db, 'appointments', id), { status: 'cancelled' })
-      setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'cancelled' } : a))
+      const res = await fetch('/api/update-appointment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, status: 'cancelled' }),
+      })
+      const json = await res.json()
+      if (json.success) {
+        setAppointments(prev => prev.map(a => a.id === id ? { ...a, status: 'cancelled' } : a))
+      }
     } catch {
       // Cancel failed silently
     }

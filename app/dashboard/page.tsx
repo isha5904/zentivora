@@ -77,7 +77,7 @@ export default function DashboardPage() {
       // Fetch profile and appointments in parallel
       const [profileResult, apptResult] = await Promise.allSettled([
         getDoc(doc(db, 'profiles', fbUser.uid)),
-        fetch(`/api/my-appointments?uid=${fbUser.uid}`).then(r => r.json()),
+        fetch('/api/all-appointments').then(r => r.json()),
       ])
 
       if (profileResult.status === 'fulfilled' && profileResult.value.exists()) {
@@ -86,6 +86,10 @@ export default function DashboardPage() {
 
       if (apptResult.status === 'fulfilled' && apptResult.value.success) {
         const raw = (apptResult.value.appointments as RawAppointment[])
+          .filter((a: RawAppointment) => a.user_id === fbUser.uid)
+          .sort((a: RawAppointment, b: RawAppointment) =>
+            new Date(b.appointment_date).getTime() - new Date(a.appointment_date).getTime()
+          )
         setAppointments(enrichAppointments(raw))
       }
 

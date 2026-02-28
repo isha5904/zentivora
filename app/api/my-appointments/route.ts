@@ -13,10 +13,11 @@ export async function GET(request: Request) {
     const db = getAdminDb()
     const snap = await db.collection('appointments')
       .where('user_id', '==', uid)
-      .orderBy('appointment_date', 'desc')
       .get()
 
-    const appointments = snap.docs.map(d => ({ ...d.data(), id: d.id }))
+    const appointments = snap.docs
+      .map(d => ({ ...d.data(), id: d.id }) as Record<string, unknown> & { id: string; appointment_date?: string })
+      .sort((a, b) => new Date(b.appointment_date ?? '').getTime() - new Date(a.appointment_date ?? '').getTime())
     return NextResponse.json({ success: true, appointments })
   } catch (err) {
     console.error('my-appointments error:', err)
